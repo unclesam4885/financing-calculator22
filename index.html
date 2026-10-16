@@ -1,12 +1,846 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>파이낸싱 요율 계산기</title>
+
+<style>
+:root {
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+  color: #244438;
+  background: #f4f7f4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 1280px;
+  margin: auto;
+  padding: 32px 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 8px 0;
+}
+
+h2 {
+  font-size: 17px;
+  margin: 0 0 20px;
+}
+
+h3 {
+  font-size: 14px;
+}
+
+p {
+  line-height: 1.8;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #6d8b72;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #7b8e80;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.card {
+  padding: 23px;
+  border: 1px solid #dfe7dd;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+}
+
+.three {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+label small {
+  display: block;
+  font-weight: normal;
+  font-size: 11px;
+  color: #879787;
+  margin-top: 5px;
+  line-height: 1.6;
+}
+
+input:not([type="checkbox"]),
+select {
+  width: 100%;
+  margin-top: 8px;
+  min-height: 43px;
+  border: 1px solid #d8e2d6;
+  border-radius: 6px;
+  padding: 10px;
+  font: inherit;
+  color: #294b38;
+  background: white;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #bbd3b7;
+}
+
+input:disabled,
+select:disabled,
+input[readonly] {
+  background: #eff4ec;
+  color: #6a8063;
+}
+
+input[type="checkbox"] {
+  accent-color: #28583b;
+  margin-right: 7px;
+}
+
+.check {
+  font-size: 12px;
+  font-weight: normal;
+  margin: 19px 0;
+  line-height: 1.8;
+}
+
+.help {
+  font-size: 11px;
+  color: #81917f;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.info {
+  background: #edf4e9;
+  padding: 11px;
+  border-radius: 6px;
+  font-size: 11px;
+  margin: 14px 0 19px;
+  color: #5e795c;
+  line-height: 1.8;
+}
+
+.separator {
+  border-top: 1px solid #e5ebe1;
+  margin-top: 20px;
+  padding-top: 20px;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #cfddca;
+  background: #f2f7ee;
+  color: #315b3c;
+  padding: 11px 16px;
+  border-radius: 6px;
+  font: inherit;
+}
+
+button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.summary {
+  background: #173e32;
+  color: white;
+}
+
+.summary .eyebrow {
+  color: #b1c99e;
+}
+
+.summary .help {
+  color: #b6c8ad;
+}
+
+.big {
+  font-size: 43px;
+  margin: 14px 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.unit {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e8ede4;
+}
+
+.summary .line {
+  border-color: #ffffff24;
+}
+
+.line span {
+  font-size: 13px;
+}
+
+.line strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.cost {
+  border-bottom: 1px solid #e8ede4;
+  padding: 13px 0;
+}
+
+.cost .line {
+  border: none;
+  padding: 0;
+}
+
+.cost small {
+  display: block;
+  margin-top: 7px;
+  font-size: 10px;
+  color: #899784;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.credit {
+  color: #43804d;
+}
+
+.total-card {
+  background: #eaf2e4;
+}
+
+.total-card strong {
+  display: block;
+  font-size: 29px;
+  margin: 16px 0;
+  overflow-wrap: anywhere;
+}
+
+#error {
+  color: #a33725;
+  padding: 12px;
+  background: #fff1e8;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+#error:empty {
+  display: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 11px;
+  margin: 15px 0;
+}
+
+td,
+th {
+  border-bottom: 1px solid #e0e7dc;
+  padding: 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #edf4e8;
+}
+
+.scroll {
+  overflow: auto;
+  max-height: 460px;
+}
+
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+footer {
+  font-size: 11px;
+  color: #8a9886;
+  padding: 15px 0;
+  line-height: 1.8;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: 20px 12px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  .three {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 21px;
+  }
+
+  header button {
+    font-size: 11px;
+    padding: 10px;
+    white-space: nowrap;
+  }
+
+  .big {
+    font-size: 36px;
+  }
+}
+
+@media print {
+  button {
+    display: none;
+  }
+
+  body {
+    background: white;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  .card {
+    break-inside: avoid;
+  }
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+  <div>
+    <div class="eyebrow">TRADE DESK · FINANCING CALCULATOR</div>
+    <h1>파이낸싱 요율 계산기</h1>
+    <div class="subtitle">
+      실제 비용과 우리 마진을 톤당 기준으로 확인하세요.
+    </div>
+  </div>
+
+  <button type="button" id="reset">기본값으로</button>
+</header>
+
+<div class="layout">
+
+<form id="form" novalidate>
+
+  <section class="card">
+    <h2>01. 거래 기본정보</h2>
+
+    <div class="grid">
+      <label>
+        거래 유형
+        <select id="trade">
+          <option value="export">직수출</option>
+          <option value="triangle">중계무역 · 삼국간</option>
+        </select>
+      </label>
+
+      <label>
+        판매 국가
+        <input
+          id="country"
+          list="countries"
+          value="베트남"
+          autocomplete="off"
+        >
+        <datalist id="countries"></datalist>
+      </label>
+    </div>
+
+    <div class="info" id="countryInfo"></div>
+
+    <div class="grid three">
+      <label>
+        구매단가
+        <small>USD / 톤</small>
+        <input
+          id="buy"
+          type="number"
+          value="1000"
+          min="0"
+          step="any"
+        >
+      </label>
+
+      <label>
+        판매단가
+        <small>USD / 톤</small>
+        <input
+          id="sell"
+          type="number"
+          value="1050"
+          min="0"
+          step="any"
+        >
+      </label>
+
+      <label>
+        수량
+        <small>톤</small>
+        <input
+          id="qty"
+          type="number"
+          value="100"
+          min="0"
+          step="any"
+        >
+      </label>
+    </div>
+
+    <div class="grid separator">
+      <label>
+        당사 타겟 요율
+        <small>% · 구매단가 대비 매매차액</small>
+        <input
+          id="targetRate"
+          type="number"
+          value="5"
+          step="any"
+        >
+      </label>
+
+      <label>
+        우리 마진
+        <small>USD / 톤 · 실제 비용 차감 후</small>
+        <input
+          id="margin"
+          type="number"
+          value="0"
+          step="any"
+        >
+      </label>
+    </div>
+
+    <p class="help">
+      판매단가 = 구매단가 × (1 + 당사 타겟 요율 ÷ 100)<br>
+      우리 마진 = 판매단가 − 구매단가 − 실제 톤당 비용<br>
+      판매단가·타겟 요율·우리 마진은 서로 연동됩니다.<br>
+      구매단가 변경 시 타겟 요율을 유지합니다.<br>
+      우리 마진을 직접 입력하면 판매단가에 따라 달라지는
+      금융비용까지 반영해 판매단가를 역산합니다.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>02. 결제 및 금융 조건</h2>
+
+    <div class="grid">
+      <label>
+        판매 결제
+        <select id="method">
+          <option value="LC">L/C</option>
+          <option value="TT">T/T</option>
+        </select>
+      </label>
+
+      <label>
+        판매 Usance days
+        <select id="sellDays">
+          <option>30</option>
+          <option>60</option>
+          <option>90</option>
+          <option>120</option>
+          <option>150</option>
+          <option selected>180</option>
+        </select>
+      </label>
+
+      <label>
+        구매 지급수단
+        <select id="purchaseMethod">
+          <option value="LC">L/C</option>
+          <option value="TT">T/T</option>
+          <option value="domestic">국내 외상 · 구매승인서</option>
+        </select>
+      </label>
+
+      <label>
+        구매 Usance days
+        <small>LC A/S는 0 입력</small>
+        <input
+          id="buyDays"
+          type="number"
+          value="90"
+          min="0"
+          step="1"
+        >
+      </label>
+    </div>
+
+    <p class="help">
+      모든 날짜는 같은 기준일(예: B/L일)을 0일로 가정합니다.
+    </p>
+
+    <label class="check">
+      <input id="nego" type="checkbox" checked>
+      판매채권 네고 / 할인
+    </label>
+
+    <p class="help">
+      판매 TT 선택 시 네고가 기본 해제됩니다.
+      실제 판매채권을 할인하는 거래라면 직접 선택하세요.
+    </p>
+
+    <div class="grid">
+      <label>
+        네고대금 수령일
+        <small>기준일 + 일</small>
+        <input
+          id="negoDay"
+          type="number"
+          value="0"
+          min="0"
+          step="1"
+        >
+      </label>
+
+      <label>
+        환가료율
+        <small>연 % · 365일 기준</small>
+        <input
+          id="discount"
+          type="number"
+          value="5"
+          min="0"
+          step="any"
+        >
+      </label>
+
+      <label>
+        사내기여이자율
+        <small>연 % · 360일 기준</small>
+        <input
+          id="interest"
+          type="number"
+          value="4.5"
+          min="0"
+          step="any"
+        >
+      </label>
+
+      <label>
+        사내부담이자율
+        <small>연 % · 360일 기준</small>
+        <input
+          id="burdenInterest"
+          type="number"
+          value="4.5"
+          min="0"
+          step="any"
+        >
+      </label>
+
+      <label>
+        구매 LC 개설 수수료율
+        <small>연 % · 최소 30일 / 365</small>
+        <input
+          id="opening"
+          type="number"
+          value="0.1"
+          min="0"
+          step="any"
+        >
+      </label>
+    </div>
+
+    <p class="help">
+      LC 개설수수료 = 구매단가 × 연 수수료율 ÷ 100
+      × 적용일수 ÷ 365<br>
+      LC A/S~30일은 30일을 적용하고,
+      30일 초과는 구매 Usance 일수를 적용합니다.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>03. 수출보험 및 기타 비용</h2>
+
+    <div class="grid">
+      <label id="lcGradeLabel">
+        적용 국가등급
+        <small>LC · 판매 국가 기준 자동 적용</small>
+        <input id="lcGrade" readonly>
+      </label>
+
+      <label id="buyerGradeLabel" hidden>
+        수입자 신용등급
+        <small>TT · D/A, CAD, COD 요율 적용</small>
+        <select id="buyerGrade">
+          <option>A</option>
+          <option>B</option>
+          <option>C</option>
+          <option>D</option>
+          <option>E</option>
+          <option>F</option>
+          <option>G</option>
+          <option>R</option>
+        </select>
+      </label>
+
+      <label>
+        기타 직접비
+        <small>USD / 톤</small>
+        <input
+          id="other"
+          type="number"
+          value="0"
+          min="0"
+          step="any"
+        >
+      </label>
+
+      <label>
+        실별 할인 / 할증률
+        <small>% · 할인은 음수, 예: -60</small>
+        <input
+          id="loss"
+          type="number"
+          value="0"
+          min="-100"
+          step="any"
+        >
+      </label>
+
+      <label>
+        Underwriter 할증률
+        <small>%</small>
+        <input
+          id="underwriter"
+          type="number"
+          value="0"
+          min="0"
+          step="any"
+        >
+      </label>
+    </div>
+
+    <label class="check">
+      <input id="risk" type="checkbox">
+      인수제한국 · 심층감시국 비상위험 할증 (+25%)
+    </label>
+
+    <label class="check">
+      <input id="small" type="checkbox">
+      순자산 1억불 미만 은행 개설 LC 할증 (+25%)
+    </label>
+
+    <p class="help">
+      심층감시국은 국가 변경 시 첨부자료를 자동 반영합니다.
+      인수제한 여부는 별도로 확인해 선택하세요.<br>
+      보험요율은 기간별 표를 적용하며,
+      연이율처럼 일할 계산하지 않습니다.
+    </p>
+  </section>
+
+</form>
+
+<div>
+
+  <section class="card summary">
+    <div class="eyebrow">ACTUAL COST PER TON</div>
+
+    <h2 style="margin-top:20px">예상 톤당 비용</h2>
+
+    <div class="big">
+      <span id="perTon">—</span>
+      <span class="unit">USD / 톤</span>
+    </div>
+
+    <div class="line">
+      <span>구매단가 대비 비용 요율</span>
+      <strong id="costRate">—</strong>
+    </div>
+
+    <div class="line">
+      <span>우리 마진 · USD/톤</span>
+      <strong id="netMargin">—</strong>
+    </div>
+
+    <p class="help" id="marginFormula"></p>
+  </section>
+
+  <div id="error" role="alert"></div>
+
+  <section class="card">
+    <h2>
+      금융비용 상세
+      <span class="unit">USD / 톤</span>
+    </h2>
+
+    <div id="breakdown"></div>
+
+    <div class="line">
+      <span>순 금융비용 / 톤</span>
+      <strong id="finance">—</strong>
+    </div>
+
+    <p class="help" id="rateFormula"></p>
+
+    <button
+      type="button"
+      id="export"
+      style="width:100%"
+    >
+      계산 내역 CSV 다운로드
+    </button>
+  </section>
+
+  <section class="card">
+    <h2>계산 기준 · Remark</h2>
+
+    <p class="help">
+      <b>보험요율: 2026년 1월 기준</b><br>
+      적용: 2026.01.15 ~ 2027.01.14 선적분<br><br>
+
+      <b>국가등급: 2026년 7월 기준</b><br>
+      사용자 첨부 2026.07.02 국가등급 자료 적용<br><br>
+
+      실제 톤당 비용 = 보험료 + 환가료 + 구매 LC 개설수수료
+      + 기타 직접비 + 부담이자 − 기여이자<br><br>
+
+      우리 마진은 매매차액에서 실제 비용을 차감한 이익이며,
+      비용에 다시 더하지 않습니다.<br><br>
+
+      선입금 시 네고 후 실수령액 또는 판매대금을 기여이자 원금으로,
+      선지급 시 구매단가를 부담이자 원금으로 사용합니다.<br><br>
+
+      분할결제·환율·은행 영업일·보험료 및 수수료 지급 시점별
+      추가 자금점유는 반영하지 않습니다.<br>
+      보험 인수 가능 여부와 최종 요율은 별도 확인하세요.
+    </p>
+  </section>
+
+  <section class="card total-card">
+    <h2>최종 총 비용</h2>
+    <strong id="totalCost">—</strong>
+    <p class="help" id="totalFormula"></p>
+  </section>
+
+</div>
+
+</div>
+
+<section class="card">
+  <details>
+    <summary>보험요율표 보기 · 2026년 1월 기준</summary>
+    <div id="rateTables"></div>
+  </details>
+</section>
+
+<section class="card">
+  <details>
+    <summary>국가등급 현황 보기 · 2026년 7월 기준</summary>
+
+    <input
+      id="countrySearch"
+      placeholder="국가명 검색"
+      aria-label="국가등급 검색"
+    >
+
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>국가</th>
+            <th>등급</th>
+            <th>등급 적용일</th>
+            <th>심층감시국</th>
+          </tr>
+        </thead>
+        <tbody id="countryRows"></tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<footer>
+  브라우저 안에서 계산합니다.
+  입력값은 자동 저장되지 않습니다.
+  필요한 계산 결과는 CSV로 보관하세요.
+</footer>
+
+</main>
+
 <script>
 "use strict";
 
-/* =========================================================
-   국가등급
-   자료 기준: 2026년 7월 / 2026.07.02 첨부 자료
-   형식: 국가명 | 등급 | 등급 적용일 | 심층감시국 여부
-========================================================= */
-
+/*
+  국가등급 자료: 2026년 7월 / 2026.07.02 첨부자료
+  국가명 | 등급 | 실제 등급 적용일 | 심층감시국 여부
+*/
 const countryData = `
 베트남|3|2026.07.02|N
 나미비아|5|2026.07.02|N
@@ -279,15 +1113,12 @@ const countries = countryData.trim().split("\n").map(line => {
   };
 });
 
-/* =========================================================
-   보험요율
-   2026년 1월 기준
-   2026.01.15 ~ 2027.01.14 선적분 적용
-   표의 값은 % 단위이며 연이율이 아닙니다.
-========================================================= */
-
 const periods = [30, 60, 90, 120, 150, 180];
 
+/*
+  보험요율: 2026년 1월 기준
+  아래 값은 % 단위이며 연이율이 아닙니다.
+*/
 const tables = {
   LC: [
     [.018,.036,.048,.060,.066,.078,.108,0],
@@ -306,10 +1137,6 @@ const tables = {
     [.198,.390,.510,.624,.744,.858,1.170,1.560]
   ]
 };
-
-/* =========================================================
-   공통 함수
-========================================================= */
 
 const $ = id => document.getElementById(id);
 const form = $("form");
@@ -376,12 +1203,10 @@ function readValues() {
   return v;
 }
 
-/* =========================================================
-   계산 엔진
-   모든 금액: USD/톤
-   totalCost만 거래 전체 USD
-========================================================= */
-
+/*
+  모든 금액은 USD/톤입니다.
+  totalCost만 전체 거래 금액 USD입니다.
+*/
 function calculate(v, saleOverride) {
   const sell = saleOverride === undefined
     ? v.sell
@@ -472,7 +1297,7 @@ function calculate(v, saleOverride) {
     );
   }
 
-  // 보험료: 기간별 기본요율에 할증·할인 계수를 곱합니다.
+  // 수출보험료
   const baseRate = tables[v.method][row][col];
 
   const factors = [
@@ -490,7 +1315,7 @@ function calculate(v, saleOverride) {
 
   const insurance = sell * insuranceRate / 100;
 
-  // 환가료: 연율 × 실제 할인기간 / 365
+  // 환가료: 365일 기준
   const discountDays = v.nego
     ? v.sellDays - v.negoDay
     : 0;
@@ -499,13 +1324,15 @@ function calculate(v, saleOverride) {
     ? sell * (v.discount / 100) * discountDays / 365
     : 0;
 
-  // 실제 판매대금 수령일
+  // 판매대금 실제 수령일
   const receiptDay = v.nego
     ? v.negoDay
     : v.sellDays;
 
-  // 양수: 판매대금 먼저 수령 → 기여이자
-  // 음수: 구매대금 먼저 지급 → 부담이자
+  /*
+    gap 양수: 판매대금을 먼저 받으므로 기여이자
+    gap 음수: 구매대금을 먼저 지급하므로 부담이자
+  */
   const gap = v.buyDays - receiptDay;
 
   const interestBase = gap >= 0
@@ -522,17 +1349,16 @@ function calculate(v, saleOverride) {
     );
   }
 
-  // 기여·부담이자: 연율 × 해당 기간 / 360
+  // 기여·부담이자: 360일 기준
   const signedInterest =
     interestBase *
     (appliedInterestRate / 100) *
     gap / 360;
 
   /*
-    LC 개설수수료 수정 반영
-    A/S: buyDays = 0
-    A/S ~ LC 30: 최소 30일 적용
-    LC 30 초과: 구매 Usance 일수 적용
+    LC 개설수수료:
+    구매단가 × 연 수수료율 × max(30, 구매일수) / 365
+    A/S는 구매일수 0으로 입력합니다.
   */
   const openingDays = v.purchaseMethod === "LC"
     ? Math.max(30, v.buyDays)
@@ -542,7 +1368,7 @@ function calculate(v, saleOverride) {
     ? v.buy * (v.opening / 100) * openingDays / 365
     : 0;
 
-  // 실제 비용에 우리 마진을 더하지 않습니다.
+  // 실제 비용에 마진을 더하지 않습니다.
   const cost =
     insurance +
     discount +
@@ -550,7 +1376,7 @@ function calculate(v, saleOverride) {
     v.other -
     signedInterest;
 
-  // 금융비용 차감 후 실제 우리 마진
+  // 실제 비용 차감 후 우리 마진
   const netMargin = sell - v.buy - cost;
 
   const costRate = v.buy > 0
@@ -579,11 +1405,10 @@ function calculate(v, saleOverride) {
   };
 }
 
-/* =========================================================
-   우리 마진 입력 → 판매단가 역산
-   판매단가에 따라 변하는 금융비용까지 반영합니다.
-========================================================= */
-
+/*
+  우리 마진을 입력하면 판매단가에 연동되는 금융비용을
+  포함하여 판매단가를 역산합니다.
+*/
 function saleForMargin(v, desiredMargin) {
   if (!Number.isFinite(desiredMargin)) {
     throw new Error("우리 마진을 입력해 주세요.");
@@ -617,10 +1442,6 @@ function saleForMargin(v, desiredMargin) {
 
   return sale;
 }
-
-/* =========================================================
-   입력 상태 및 국가등급 표시
-========================================================= */
 
 function updateFieldStates(v) {
   const country = v.countryRecord;
@@ -672,10 +1493,6 @@ function clearResults(message) {
   $("breakdown").replaceChildren();
   $("export").disabled = true;
 }
-
-/* =========================================================
-   상세 비용 표시
-========================================================= */
 
 function addCostRow(title, amount, formula, credit) {
   const row = document.createElement("div");
@@ -796,7 +1613,6 @@ function render(v, result) {
     "사용자 입력 · USD/톤"
   );
 
-  // 전체 거래 총액은 마지막에만 표시합니다.
   $("totalCost").textContent =
     fmt(result.totalCost) + " USD";
 
@@ -808,10 +1624,6 @@ function render(v, result) {
 
   $("export").disabled = false;
 }
-
-/* =========================================================
-   양방향 연동 및 재계산
-========================================================= */
 
 function update(changed) {
   let v = readValues();
@@ -858,46 +1670,6 @@ function update(changed) {
   }
 }
 
-/* =========================================================
-   입력 항목 설명 업데이트
-========================================================= */
-
-function updateOpeningDescription() {
-  const input = $("opening");
-  const label = input.closest("label");
-
-  if (label) {
-    const textNode = Array.from(label.childNodes).find(
-      node => node.nodeType === Node.TEXT_NODE &&
-        node.textContent.trim()
-    );
-
-    if (textNode) {
-      textNode.textContent = "구매 LC 개설 수수료율 ";
-    }
-
-    const small = label.querySelector("small");
-
-    if (small) {
-      small.textContent = "연 % · 최소 30일 / 365";
-    }
-
-    if (!$("openingDayNote")) {
-      const note = document.createElement("p");
-      note.id = "openingDayNote";
-      note.className = "help";
-      note.textContent =
-        "LC A/S는 구매 Usance days에 0을 입력하세요. " +
-        "A/S~30일은 30일, 30일 초과는 입력한 일수를 적용합니다.";
-      label.after(note);
-    }
-  }
-}
-
-/* =========================================================
-   이벤트
-========================================================= */
-
 form.addEventListener("submit", event => {
   event.preventDefault();
 });
@@ -905,12 +1677,10 @@ form.addEventListener("submit", event => {
 form.addEventListener("input", event => {
   const changed = event.target.id;
 
-  // TT는 기본적으로 할인하지 않고 판매 만기에 수령합니다.
   if (changed === "method") {
     $("nego").checked = $("method").value === "LC";
   }
 
-  // 국가 변경 시 첨부 자료의 심층감시국 여부 반영
   if (changed === "country") {
     const country = countries.find(
       item => item.name === $("country").value
@@ -928,10 +1698,6 @@ $("reset").addEventListener("click", () => {
   form.reset();
   update();
 });
-
-/* =========================================================
-   국가 검색 목록
-========================================================= */
 
 function initializeCountryOptions() {
   $("countries").replaceChildren();
@@ -972,10 +1738,6 @@ $("countrySearch").addEventListener(
   "input",
   renderCountries
 );
-
-/* =========================================================
-   보험요율표 표시
-========================================================= */
 
 function renderRateTables() {
   $("rateTables").replaceChildren();
@@ -1032,20 +1794,16 @@ function renderRateTables() {
 
   const note = document.createElement("p");
   note.className = "help";
+
   note.textContent =
     "2026년 1월 기준 보험요율입니다. " +
     "LC 8등급의 0.000 표기는 무료 보험료로 적용하지 않습니다. " +
-    "보험료는 기본요율 × 실별 할인·할증 계수 " +
+    "보험요율은 기본요율 × 실별 할인·할증 계수 " +
     "× Underwriter 계수 × 비상위험 계수 " +
     "× 소규모 개설은행 계수(LC) × 중계무역 계수로 계산합니다.";
 
   $("rateTables").append(note);
 }
-
-/* =========================================================
-   CSV 내보내기
-   모든 비용은 USD/톤, 마지막 총 비용만 USD
-========================================================= */
 
 $("export").addEventListener("click", () => {
   if (!latest) return;
@@ -1060,7 +1818,11 @@ $("export").addEventListener("click", () => {
     ["항목", "값", "단위"],
     ["판매 국가", v.country, ""],
     ["국가등급", v.countryRecord.grade, ""],
-    ["거래 유형", v.trade === "triangle" ? "중계무역" : "직수출", ""],
+    [
+      "거래 유형",
+      v.trade === "triangle" ? "중계무역" : "직수출",
+      ""
+    ],
     ["판매 결제", v.method, ""],
     ["판매 Usance", v.sellDays, "일"],
     ["구매 지급수단", v.purchaseMethod, ""],
@@ -1069,7 +1831,11 @@ $("export").addEventListener("click", () => {
     ["구매단가", v.buy, "USD/톤"],
     ["판매단가", result.sell, "USD/톤"],
     ["당사 타겟 요율", targetRate, "%"],
-    ["우리 마진 (실제 비용 차감 후)", result.netMargin, "USD/톤"],
+    [
+      "우리 마진 (실제 비용 차감 후)",
+      result.netMargin,
+      "USD/톤"
+    ],
     ["판매채권 네고", v.nego ? "적용" : "미적용", ""],
     ["네고대금 수령일", v.nego ? v.negoDay : "", "일"],
     ["환가료율", v.nego ? v.discount : "", "연 %"],
@@ -1078,15 +1844,39 @@ $("export").addEventListener("click", () => {
     ["보험 기본요율", result.baseRate, "%"],
     ["실별 할인 / 할증률", v.loss, "%"],
     ["Underwriter 할증률", v.underwriter, "%"],
-    ["비상위험 할증", v.risk ? "적용" : "미적용", ""],
-    ["소규모 개설은행 할증", v.small && v.method === "LC" ? "적용" : "미적용", ""],
+    [
+      "비상위험 할증",
+      v.risk ? "적용" : "미적용",
+      ""
+    ],
+    [
+      "소규모 개설은행 할증",
+      v.small && v.method === "LC" ? "적용" : "미적용",
+      ""
+    ],
     ["보험 적용요율", result.insuranceRate, "%"],
     ["수출보험료", result.insurance, "USD/톤"],
     ["환가료", result.discount, "USD/톤"],
-    ["사내기여이자", Math.max(result.signedInterest, 0), "USD/톤"],
-    ["사내부담이자", Math.max(-result.signedInterest, 0), "USD/톤"],
-    ["LC 개설 연 수수료율", v.purchaseMethod === "LC" ? v.opening : "", "연 %"],
-    ["LC 개설수수료 적용일수", result.openingDays, "일"],
+    [
+      "사내기여이자",
+      Math.max(result.signedInterest, 0),
+      "USD/톤"
+    ],
+    [
+      "사내부담이자",
+      Math.max(-result.signedInterest, 0),
+      "USD/톤"
+    ],
+    [
+      "LC 개설 연 수수료율",
+      v.purchaseMethod === "LC" ? v.opening : "",
+      "연 %"
+    ],
+    [
+      "LC 개설수수료 적용일수",
+      result.openingDays,
+      "일"
+    ],
     ["구매 LC 개설수수료", result.opening, "USD/톤"],
     ["기타 직접비", v.other, "USD/톤"],
     ["실제 톤당 비용", result.cost, "USD/톤"],
@@ -1132,13 +1922,11 @@ $("export").addEventListener("click", () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
-/* =========================================================
-   초기 실행
-========================================================= */
-
-updateOpeningDescription();
 initializeCountryOptions();
 renderCountries();
 renderRateTables();
 update();
 </script>
+
+</body>
+</html>
