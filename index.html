@@ -1,1932 +1,710 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>파이낸싱 요율 계산기</title>
-
-<style>
-:root {
-  font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
-  color: #244438;
-  background: #f4f7f4;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-main {
-  max-width: 1280px;
-  margin: auto;
-  padding: 32px 20px;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-h1 {
-  font-size: 28px;
-  margin: 8px 0;
-}
-
-h2 {
-  font-size: 17px;
-  margin: 0 0 20px;
-}
-
-h3 {
-  font-size: 14px;
-}
-
-p {
-  line-height: 1.8;
-}
-
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: #6d8b72;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: #7b8e80;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 22px;
-  align-items: start;
-}
-
-.card {
-  padding: 23px;
-  border: 1px solid #dfe7dd;
-  background: white;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 17px;
-}
-
-.three {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-label small {
-  display: block;
-  font-weight: normal;
-  font-size: 11px;
-  color: #879787;
-  margin-top: 5px;
-  line-height: 1.6;
-}
-
-input:not([type="checkbox"]),
-select {
-  width: 100%;
-  margin-top: 8px;
-  min-height: 43px;
-  border: 1px solid #d8e2d6;
-  border-radius: 6px;
-  padding: 10px;
-  font: inherit;
-  color: #294b38;
-  background: white;
-}
-
-input:focus,
-select:focus {
-  outline: 2px solid #bbd3b7;
-}
-
-input:disabled,
-select:disabled,
-input[readonly] {
-  background: #eff4ec;
-  color: #6a8063;
-}
-
-input[type="checkbox"] {
-  accent-color: #28583b;
-  margin-right: 7px;
-}
-
-.check {
-  font-size: 12px;
-  font-weight: normal;
-  margin: 19px 0;
-  line-height: 1.8;
-}
-
-.help {
-  font-size: 11px;
-  color: #81917f;
-  line-height: 1.9;
-  overflow-wrap: anywhere;
-}
-
-.info {
-  background: #edf4e9;
-  padding: 11px;
-  border-radius: 6px;
-  font-size: 11px;
-  margin: 14px 0 19px;
-  color: #5e795c;
-  line-height: 1.8;
-}
-
-.separator {
-  border-top: 1px solid #e5ebe1;
-  margin-top: 20px;
-  padding-top: 20px;
-}
-
-button {
-  cursor: pointer;
-  border: 1px solid #cfddca;
-  background: #f2f7ee;
-  color: #315b3c;
-  padding: 11px 16px;
-  border-radius: 6px;
-  font: inherit;
-}
-
-button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.summary {
-  background: #173e32;
-  color: white;
-}
-
-.summary .eyebrow {
-  color: #b1c99e;
-}
-
-.summary .help {
-  color: #b6c8ad;
-}
-
-.big {
-  font-size: 43px;
-  margin: 14px 0;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.unit {
-  font-size: 12px;
-  font-weight: normal;
-}
-
-.line {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 1px solid #e8ede4;
-}
-
-.summary .line {
-  border-color: #ffffff24;
-}
-
-.line span {
-  font-size: 13px;
-}
-
-.line strong {
-  font-size: 15px;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-
-.cost {
-  border-bottom: 1px solid #e8ede4;
-  padding: 13px 0;
-}
-
-.cost .line {
-  border: none;
-  padding: 0;
-}
-
-.cost small {
-  display: block;
-  margin-top: 7px;
-  font-size: 10px;
-  color: #899784;
-  line-height: 1.9;
-  overflow-wrap: anywhere;
-}
-
-.credit {
-  color: #43804d;
-}
-
-.total-card {
-  background: #eaf2e4;
-}
-
-.total-card strong {
-  display: block;
-  font-size: 29px;
-  margin: 16px 0;
-  overflow-wrap: anywhere;
-}
-
-#error {
-  color: #a33725;
-  padding: 12px;
-  background: #fff1e8;
-  border-radius: 6px;
-  font-size: 12px;
-  line-height: 1.8;
-  margin-bottom: 20px;
-}
-
-#error:empty {
-  display: none;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 11px;
-  margin: 15px 0;
-}
-
-td,
-th {
-  border-bottom: 1px solid #e0e7dc;
-  padding: 10px;
-  text-align: left;
-  white-space: nowrap;
-}
-
-th {
-  background: #edf4e8;
-}
-
-.scroll {
-  overflow: auto;
-  max-height: 460px;
-}
-
-details summary {
-  cursor: pointer;
-  font-weight: 600;
-  line-height: 1.8;
-}
-
-footer {
-  font-size: 11px;
-  color: #8a9886;
-  padding: 15px 0;
-  line-height: 1.8;
-}
-
-[hidden] {
-  display: none !important;
-}
-
-@media (max-width: 850px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  h1 {
-    font-size: 24px;
-  }
-}
-
-@media (max-width: 480px) {
-  main {
-    padding: 20px 12px;
-  }
-
-  .card {
-    padding: 18px;
-  }
-
-  .grid {
-    gap: 12px;
-  }
-
-  .three {
-    grid-template-columns: 1fr;
-  }
-
-  h1 {
-    font-size: 21px;
-  }
-
-  header button {
-    font-size: 11px;
-    padding: 10px;
-    white-space: nowrap;
-  }
-
-  .big {
-    font-size: 36px;
-  }
-}
-
-@media print {
-  button {
-    display: none;
-  }
-
-  body {
-    background: white;
-  }
-
-  main {
-    max-width: none;
-    padding: 0;
-  }
-
-  .card {
-    break-inside: avoid;
-  }
-}
-</style>
-</head>
-
-<body>
-<main>
-
-<header>
-  <div>
-    <div class="eyebrow">TRADE DESK · FINANCING CALCULATOR</div>
-    <h1>파이낸싱 요율 계산기</h1>
-    <div class="subtitle">
-      실제 비용과 우리 마진을 톤당 기준으로 확인하세요.
-    </div>
-  </div>
-
-  <button type="button" id="reset">기본값으로</button>
-</header>
-
-<div class="layout">
-
-<form id="form" novalidate>
-
-  <section class="card">
-    <h2>01. 거래 기본정보</h2>
-
-    <div class="grid">
-      <label>
-        거래 유형
-        <select id="trade">
-          <option value="export">직수출</option>
-          <option value="triangle">중계무역 · 삼국간</option>
-        </select>
-      </label>
-
-      <label>
-        판매 국가
-        <input
-          id="country"
-          list="countries"
-          value="베트남"
-          autocomplete="off"
-        >
-        <datalist id="countries"></datalist>
-      </label>
-    </div>
-
-    <div class="info" id="countryInfo"></div>
-
-    <div class="grid three">
-      <label>
-        구매단가
-        <small>USD / 톤</small>
-        <input
-          id="buy"
-          type="number"
-          value="1000"
-          min="0"
-          step="any"
-        >
-      </label>
-
-      <label>
-        판매단가
-        <small>USD / 톤</small>
-        <input
-          id="sell"
-          type="number"
-          value="1050"
-          min="0"
-          step="any"
-        >
-      </label>
-
-      <label>
-        수량
-        <small>톤</small>
-        <input
-          id="qty"
-          type="number"
-          value="100"
-          min="0"
-          step="any"
-        >
-      </label>
-    </div>
-
-    <div class="grid separator">
-      <label>
-        당사 타겟 요율
-        <small>% · 구매단가 대비 매매차액</small>
-        <input
-          id="targetRate"
-          type="number"
-          value="5"
-          step="any"
-        >
-      </label>
-
-      <label>
-        우리 마진
-        <small>USD / 톤 · 실제 비용 차감 후</small>
-        <input
-          id="margin"
-          type="number"
-          value="0"
-          step="any"
-        >
-      </label>
-    </div>
-
-    <p class="help">
-      판매단가 = 구매단가 × (1 + 당사 타겟 요율 ÷ 100)<br>
-      우리 마진 = 판매단가 − 구매단가 − 실제 톤당 비용<br>
-      판매단가·타겟 요율·우리 마진은 서로 연동됩니다.<br>
-      구매단가 변경 시 타겟 요율을 유지합니다.<br>
-      우리 마진을 직접 입력하면 판매단가에 따라 달라지는
-      금융비용까지 반영해 판매단가를 역산합니다.
-    </p>
-  </section>
-
-  <section class="card">
-    <h2>02. 결제 및 금융 조건</h2>
-
-    <div class="grid">
-      <label>
-        판매 결제
-        <select id="method">
-          <option value="LC">L/C</option>
-          <option value="TT">T/T</option>
-        </select>
-      </label>
-
-      <label>
-        판매 Usance days
-        <select id="sellDays">
-          <option>30</option>
-          <option>60</option>
-          <option>90</option>
-          <option>120</option>
-          <option>150</option>
-          <option selected>180</option>
-        </select>
-      </label>
-
-      <label>
-        구매 지급수단
-        <select id="purchaseMethod">
-          <option value="LC">L/C</option>
-          <option value="TT">T/T</option>
-          <option value="domestic">국내 외상 · 구매승인서</option>
-        </select>
-      </label>
-
-      <label>
-        구매 Usance days
-        <small>LC A/S는 0 입력</small>
-        <input
-          id="buyDays"
-          type="number"
-          value="90"
-          min="0"
-          step="1"
-        >
-      </label>
-    </div>
-
-    <p class="help">
-      모든 날짜는 같은 기준일(예: B/L일)을 0일로 가정합니다.
-    </p>
-
-    <label class="check">
-      <input id="nego" type="checkbox" checked>
-      판매채권 네고 / 할인
-    </label>
-
-    <p class="help">
-      판매 TT 선택 시 네고가 기본 해제됩니다.
-      실제 판매채권을 할인하는 거래라면 직접 선택하세요.
-    </p>
-
-    <div class="grid">
-      <label>
-        네고대금 수령일
-        <small>기준일 + 일</small>
-        <input
-          id="negoDay"
-          type="number"
-          value="0"
-          min="0"
-          step="1"
-        >
-      </label>
-
-      <label>
-        환가료율
-        <small>연 % · 365일 기준</small>
-        <input
-          id="discount"
-          type="number"
-          value="5"
-          min="0"
-          step="any"
-        >
-      </label>
-
-      <label>
-        사내기여이자율
-        <small>연 % · 360일 기준</small>
-        <input
-          id="interest"
-          type="number"
-          value="4.5"
-          min="0"
-          step="any"
-        >
-      </label>
-
-      <label>
-        사내부담이자율
-        <small>연 % · 360일 기준</small>
-        <input
-          id="burdenInterest"
-          type="number"
-          value="4.5"
-          min="0"
-          step="any"
-        >
-      </label>
-
-      <label>
-        구매 LC 개설 수수료율
-        <small>연 % · 최소 30일 / 365</small>
-        <input
-          id="opening"
-          type="number"
-          value="0.1"
-          min="0"
-          step="any"
-        >
-      </label>
-    </div>
-
-    <p class="help">
-      LC 개설수수료 = 구매단가 × 연 수수료율 ÷ 100
-      × 적용일수 ÷ 365<br>
-      LC A/S~30일은 30일을 적용하고,
-      30일 초과는 구매 Usance 일수를 적용합니다.
-    </p>
-  </section>
-
-  <section class="card">
-    <h2>03. 수출보험 및 기타 비용</h2>
-
-    <div class="grid">
-      <label id="lcGradeLabel">
-        적용 국가등급
-        <small>LC · 판매 국가 기준 자동 적용</small>
-        <input id="lcGrade" readonly>
-      </label>
-
-      <label id="buyerGradeLabel" hidden>
-        수입자 신용등급
-        <small>TT · D/A, CAD, COD 요율 적용</small>
-        <select id="buyerGrade">
-          <option>A</option>
-          <option>B</option>
-          <option>C</option>
-          <option>D</option>
-          <option>E</option>
-          <option>F</option>
-          <option>G</option>
-          <option>R</option>
-        </select>
-      </label>
-
-      <label>
-        기타 직접비
-        <small>USD / 톤</small>
-        <input
-          id="other"
-          type="number"
-          value="0"
-          min="0"
-          step="any"
-        >
-      </label>
-
-      <label>
-        실별 할인 / 할증률
-        <small>% · 할인은 음수, 예: -60</small>
-        <input
-          id="loss"
-          type="number"
-          value="0"
-          min="-100"
-          step="any"
-        >
-      </label>
-
-      <label>
-        Underwriter 할증률
-        <small>%</small>
-        <input
-          id="underwriter"
-          type="number"
-          value="0"
-          min="0"
-          step="any"
-        >
-      </label>
-    </div>
-
-    <label class="check">
-      <input id="risk" type="checkbox">
-      인수제한국 · 심층감시국 비상위험 할증 (+25%)
-    </label>
-
-    <label class="check">
-      <input id="small" type="checkbox">
-      순자산 1억불 미만 은행 개설 LC 할증 (+25%)
-    </label>
-
-    <p class="help">
-      심층감시국은 국가 변경 시 첨부자료를 자동 반영합니다.
-      인수제한 여부는 별도로 확인해 선택하세요.<br>
-      보험요율은 기간별 표를 적용하며,
-      연이율처럼 일할 계산하지 않습니다.
-    </p>
-  </section>
-
-</form>
-
-<div>
-
-  <section class="card summary">
-    <div class="eyebrow">ACTUAL COST PER TON</div>
-
-    <h2 style="margin-top:20px">예상 톤당 비용</h2>
-
-    <div class="big">
-      <span id="perTon">—</span>
-      <span class="unit">USD / 톤</span>
-    </div>
-
-    <div class="line">
-      <span>구매단가 대비 비용 요율</span>
-      <strong id="costRate">—</strong>
-    </div>
-
-    <div class="line">
-      <span>우리 마진 · USD/톤</span>
-      <strong id="netMargin">—</strong>
-    </div>
-
-    <p class="help" id="marginFormula"></p>
-  </section>
-
-  <div id="error" role="alert"></div>
-
-  <section class="card">
-    <h2>
-      금융비용 상세
-      <span class="unit">USD / 톤</span>
-    </h2>
-
-    <div id="breakdown"></div>
-
-    <div class="line">
-      <span>순 금융비용 / 톤</span>
-      <strong id="finance">—</strong>
-    </div>
-
-    <p class="help" id="rateFormula"></p>
-
-    <button
-      type="button"
-      id="export"
-      style="width:100%"
-    >
-      계산 내역 CSV 다운로드
-    </button>
-  </section>
-
-  <section class="card">
-    <h2>계산 기준 · Remark</h2>
-
-    <p class="help">
-      <b>보험요율: 2026년 1월 기준</b><br>
-      적용: 2026.01.15 ~ 2027.01.14 선적분<br><br>
-
-      <b>국가등급: 2026년 7월 기준</b><br>
-      사용자 첨부 2026.07.02 국가등급 자료 적용<br><br>
-
-      실제 톤당 비용 = 보험료 + 환가료 + 구매 LC 개설수수료
-      + 기타 직접비 + 부담이자 − 기여이자<br><br>
-
-      우리 마진은 매매차액에서 실제 비용을 차감한 이익이며,
-      비용에 다시 더하지 않습니다.<br><br>
-
-      선입금 시 네고 후 실수령액 또는 판매대금을 기여이자 원금으로,
-      선지급 시 구매단가를 부담이자 원금으로 사용합니다.<br><br>
-
-      분할결제·환율·은행 영업일·보험료 및 수수료 지급 시점별
-      추가 자금점유는 반영하지 않습니다.<br>
-      보험 인수 가능 여부와 최종 요율은 별도 확인하세요.
-    </p>
-  </section>
-
-  <section class="card total-card">
-    <h2>최종 총 비용</h2>
-    <strong id="totalCost">—</strong>
-    <p class="help" id="totalFormula"></p>
-  </section>
-
-</div>
-
-</div>
-
-<section class="card">
-  <details>
-    <summary>보험요율표 보기 · 2026년 1월 기준</summary>
-    <div id="rateTables"></div>
-  </details>
-</section>
-
-<section class="card">
-  <details>
-    <summary>국가등급 현황 보기 · 2026년 7월 기준</summary>
-
-    <input
-      id="countrySearch"
-      placeholder="국가명 검색"
-      aria-label="국가등급 검색"
-    >
-
-    <div class="scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>국가</th>
-            <th>등급</th>
-            <th>등급 적용일</th>
-            <th>심층감시국</th>
-          </tr>
-        </thead>
-        <tbody id="countryRows"></tbody>
-      </table>
-    </div>
-  </details>
-</section>
-
-<footer>
-  브라우저 안에서 계산합니다.
-  입력값은 자동 저장되지 않습니다.
-  필요한 계산 결과는 CSV로 보관하세요.
-</footer>
-
-</main>
-
 <script>
-"use strict";
-
 /*
-  국가등급 자료: 2026년 7월 / 2026.07.02 첨부자료
-  국가명 | 등급 | 실제 등급 적용일 | 심층감시국 여부
+  결과 PNG / PDF 저장 기능
+  외부 라이브러리 없이 브라우저 안에서 파일을 만듭니다.
+  기존 계산기 스크립트 다음, </body> 바로 위에 추가하세요.
 */
-const countryData = `
-베트남|3|2026.07.02|N
-나미비아|5|2026.07.02|N
-가나|7|2025.10.17|N
-가봉|7|2025.10.17|N
-가이아나|5|2025.10.17|N
-감비아|7|2025.10.17|N
-과달루프|3|2025.12.30|N
-과테말라|4|2025.10.17|N
-괌|3|2025.12.30|N
-그레나다|5|2024.11.21|N
-그리스|4|2025.12.30|N
-그린랜드|3|2025.12.30|N
-기니|7|2025.10.17|N
-기니비사우|7|2025.10.17|N
-나바사섬|7|2025.12.30|N
-나우루|3|2024.11.21|N
-나이지리아|6|2025.10.17|N
-남수단|7|2026.07.02|N
-남아프리카공화국|4|2026.07.02|Y
-남조지아.남샌드위치군도|7|2025.12.30|N
-네덜란드|1|2025.12.30|N
-네팔|6|2026.07.02|Y
-노르웨이|1|2025.12.30|N
-노르웨이속령|7|2025.12.30|N
-노포크 아일랜드|7|2025.12.30|N
-뉴질랜드|1|2025.12.30|N
-뉴칼레도니아|4|2025.12.30|N
-니우에|5|2025.12.30|N
-니제르|7|2025.10.17|N
-니카라과|7|2025.10.17|Y
-대만|2|2026.07.02|N
-대한민국|1|2025.12.30|N
-덴마크|1|2025.12.30|N
-도미니카 연방|5|2024.11.21|N
-도미니카공화국|4|2025.10.17|Y
-독일|1|2025.12.30|N
-동티모르|6|2026.07.02|N
-라오스|7|2026.07.02|Y
-라이베리아|7|2025.10.17|N
-라트비아|2|2025.12.30|N
-러시아|7|2026.02.06|N
-레바논|7|2026.02.06|N
-레소토|6|2026.07.02|N
-레위니옹|4|2025.12.30|N
-로스속령|7|2025.12.30|N
-루마니아|3|2026.02.06|N
-룩셈부르크|1|2025.12.30|N
-르완다|6|2026.07.02|N
-리비아|7|2026.02.06|N
-리투아니아|2|2025.12.30|N
-리히텐슈타인|1|2024.11.21|N
-마다가스카르|7|2026.07.02|N
-마샬군도|5|2024.11.21|N
-마요뜨|5|2025.12.30|N
-마카오|2|2024.11.21|N
-말라위|7|2026.07.02|N
-말레이시아|2|2026.07.02|N
-말리|7|2025.10.17|N
-말티니크|3|2025.12.30|N
-맨섬|3|2025.12.30|N
-멕시코|3|2025.10.17|N
-멜리야|4|2025.12.30|N
-모나코|2|2024.11.21|N
-모로코|3|2026.02.06|N
-모리셔스|3|2026.07.02|N
-모리타니아|6|2025.10.17|N
-모잠비크|7|2026.07.02|N
-몬테네그로|6|2026.02.06|N
-몬트세라트|7|2025.12.30|N
-몰도바|6|2026.02.06|N
-몰디브|7|2026.07.02|Y
-몰타|2|2023.10.06|N
-몽골|6|2026.07.02|N
-미국|1|2025.12.30|N
-미국령 버진군도|3|2025.12.30|N
-미국령 사모아|5|2024.11.21|N
-미드웨이섬|7|2025.12.30|N
-미얀마|7|2026.07.02|N
-미크로네시아|6|2024.11.21|N
-바누아투|6|2024.11.21|N
-바레인|6|2026.02.06|N
-바베이도스|6|2024.11.21|N
-바티칸|2|2024.11.21|N
-바하마|4|2025.10.17|N
-방글라데시|6|2026.07.02|Y
-버뮤다|2|2025.12.30|N
-베네수엘라|7|2025.10.17|N
-베넹|6|2025.10.17|N
-베이커홀랜드섬|7|2025.12.30|N
-벨기에|1|2025.12.30|N
-벨라루스|7|2026.02.06|N
-벨리즈|7|2023.10.06|Y
-보스니아-헤르체코비나|6|2026.02.06|N
-보츠와나|3|2026.07.02|N
-볼리비아|7|2025.10.17|N
-부룬디|7|2026.07.02|N
-부르키나파소|7|2025.10.17|N
-부탄|6|2026.07.02|N
-북마리아나 군도|3|2025.12.30|N
-북마케도니아|5|2026.02.06|N
-북한|7|2026.07.02|N
-불가리아|2|2026.02.06|N
-브라질|4|2025.10.17|N
-브루나이|3|2024.11.21|N
-사모아|5|2025.12.30|N
-사우디아라비아|2|2026.02.06|N
-사이프러스|4|2025.12.30|N
-산 마리노|4|2024.11.21|N
-상투메프린시페|6|2024.11.21|N
-세네갈|7|2025.10.17|Y
-세르비아|4|2026.02.06|N
-세우타|4|2025.12.30|N
-세이셸|5|2023.10.06|Y
-세인트 루시아|4|2024.11.21|N
-세인트 빈센트 그레나딘|6|2024.11.21|N
-세인트 키츠 네비스|3|2024.11.21|N
-세인트 피에르 미켈론|4|2025.12.30|N
-세인트헬레나|5|2025.12.30|N
-소말리아|7|2026.07.02|N
-솔로몬제도|7|2024.11.21|N
-수단|7|2026.07.02|N
-수리남|7|2025.10.17|Y
-스리랑카|7|2026.07.02|N
-스발바르|7|2025.12.30|N
-스웨덴|1|2025.12.30|N
-스위스|1|2025.12.30|N
-스페인|2|2025.12.30|N
-슬로바키아|2|2025.12.30|N
-슬로베니아|2|2025.12.30|N
-시리아|7|2026.02.06|N
-시에라리온|7|2025.10.17|N
-싱가포르|1|2026.07.02|N
-아랍에미리트 연합|2|2026.02.06|N
-아루바|4|2025.10.17|N
-아르메니아|5|2026.02.06|N
-아르헨티나|7|2025.10.17|N
-아쉬모아 카르티어 아일랜드|7|2025.12.30|N
-아이슬란드|2|2025.12.30|N
-아이티|7|2025.10.17|N
-아일랜드|1|2025.12.30|N
-아제르바이잔|4|2026.02.06|N
-아프가니스탄|7|2026.07.02|N
-안도라|3|2024.11.21|N
-알랜드아일랜드|4|2025.12.30|N
-알바니아|4|2026.02.06|N
-알제리|5|2026.02.06|N
-앙골라|6|2026.07.02|N
-앤티가 바부다|7|2025.10.17|N
-앵귈라|4|2025.12.30|N
-얀마옌|7|2025.12.30|N
-에리트리아|7|2026.07.02|N
-에스와티니|6|2026.07.02|N
-에스토니아|2|2025.12.30|N
-에콰도르|6|2025.10.17|N
-에티오피아|7|2026.07.02|N
-엘살바도르|6|2025.10.17|N
-영국|1|2025.12.30|N
-영국남극속령|7|2025.12.30|N
-영국령 버진군도|3|2025.12.30|N
-영국령 인도양지역|7|2025.12.30|N
-예멘|7|2026.02.06|N
-오만|3|2026.02.06|N
-오스트리아|1|2025.12.30|N
-온두라스|5|2025.10.17|N
-요르단|5|2026.02.06|N
-우간다|6|2026.07.02|N
-우루과이|3|2025.10.17|N
-우즈베키스탄|5|2026.02.06|Y
-우크라이나|7|2026.02.06|N
-월리스푸투나제도|5|2025.12.30|N
-웨이크아일랜드|7|2025.12.30|N
-이라크|7|2026.02.06|N
-이란|7|2026.02.06|N
-이스라엘|3|2025.12.30|Y
-이집트|6|2026.02.06|N
-이탈리아|2|2025.12.30|N
-인도|3|2026.07.02|N
-인도네시아|3|2026.07.02|N
-일본|1|2025.12.30|N
-자메이카|5|2025.10.17|N
-자비스섬|7|2025.12.30|N
-잠비아|7|2026.07.02|N
-적도기니|7|2025.10.17|Y
-조지아|5|2026.02.06|N
-존스톤 아일랜드|7|2025.12.30|N
-중국|2|2026.07.02|N
-중앙아프리카공화국|7|2025.10.17|Y
-지부티|7|2026.07.02|N
-지브랄타|3|2025.12.30|N
-짐바브웨|7|2026.07.02|N
-차넬군도(건지)|3|2025.12.30|N
-차넬군도(저지)|2|2025.12.30|N
-차드|7|2025.10.17|N
-체코|1|2025.12.30|N
-칠레|2|2025.12.30|N
-카메룬|6|2025.10.17|Y
-카보베르데|5|2025.10.17|N
-카자흐스탄|5|2026.02.06|N
-카타르|2|2026.02.06|N
-캄보디아|6|2026.07.02|N
-캐나다|1|2025.12.30|N
-케냐|7|2026.07.02|N
-케이만군도|3|2025.12.30|N
-코랄섬|7|2025.12.30|N
-코모로|6|2024.11.21|N
-코소보|6|2026.02.06|N
-코스타리카|3|2025.10.17|N
-코코스 군도|7|2025.12.30|N
-코트디부아르|5|2025.10.17|N
-콜롬비아|4|2025.10.17|N
-콩고|7|2025.10.17|Y
-콩고민주공화국|7|2025.10.17|Y
-쿠바|7|2025.10.17|N
-쿠웨이트|2|2026.02.06|N
-쿡제도|4|2025.12.30|N
-퀴라소|5|2025.10.17|N
-크로아티아|3|2023.02.03|N
-크리스마스섬|7|2025.12.30|N
-키르기즈공화국|7|2026.02.06|N
-키리바시|6|2024.11.21|N
-킹맨리프|7|2025.12.30|N
-타지키스탄|7|2026.02.06|N
-탄자니아|6|2026.07.02|N
-태국|3|2026.07.02|N
-터크스 카이코스군도|2|2025.12.30|N
-토고|6|2025.10.17|N
-토켈라우|3|2025.12.30|N
-통가|5|2024.11.21|N
-투르크메니스탄|7|2026.02.06|Y
-투발루|5|2024.11.21|N
-튀니지|7|2026.02.06|N
-튀르키예(구 터키)|5|2026.02.06|N
-트리니다드토바고|3|2025.10.17|N
-파나마|4|2025.10.17|N
-파라과이|4|2025.10.17|N
-파키스탄|7|2026.07.02|N
-파푸아뉴기니|6|2026.07.02|N
-팔라우|3|2024.11.21|N
-팔레스타인|7|2026.02.06|N
-팔미라|7|2025.12.30|N
-페로군도|3|2025.12.30|N
-페루|3|2025.10.17|N
-포르투갈|2|2025.12.30|N
-포클랜드군도|4|2025.12.30|N
-폴란드|2|2025.12.30|N
-푸에르토리코|5|2025.12.30|N
-프랑스|1|2025.12.30|N
-프랑스령 극남군도|7|2025.12.30|N
-프랑스령 기아나|4|2025.12.30|N
-프랑스령 폴리네시아|2|2025.12.30|N
-피지|5|2026.07.02|N
-피트케안군도|7|2025.12.30|N
-핀란드|1|2025.12.30|N
-필리핀|3|2026.07.02|N
-허드섬|7|2024.11.21|N
-헝가리|3|2025.12.30|N
-호주|1|2025.12.30|N
-호주남극속령|7|2025.12.30|N
-홍콩|2|2026.07.02|N
-`;
+(() => {
+  "use strict";
 
-const countries = countryData.trim().split("\n").map(line => {
-  const [name, grade, date, watch] = line.trim().split("|");
-  return {
-    name,
-    grade: Number(grade),
-    date,
-    watch: watch === "Y"
-  };
-});
+  const csvButton = document.getElementById("export");
 
-const periods = [30, 60, 90, 120, 150, 180];
+  if (!csvButton || document.getElementById("saveResultPNG")) {
+    return;
+  }
 
-/*
-  보험요율: 2026년 1월 기준
-  아래 값은 % 단위이며 연이율이 아닙니다.
-*/
-const tables = {
-  LC: [
-    [.018,.036,.048,.060,.066,.078,.108,0],
-    [.036,.072,.096,.114,.138,.156,.216,0],
-    [.042,.084,.108,.132,.162,.186,.252,0],
-    [.054,.102,.132,.162,.192,.222,.306,0],
-    [.060,.114,.150,.180,.216,.252,.342,0],
-    [.066,.132,.174,.210,.252,.288,.396,0]
-  ],
-  TT: [
-    [.078,.156,.204,.252,.300,.348,.468,.624],
-    [.096,.192,.252,.312,.366,.426,.576,.768],
-    [.114,.228,.300,.366,.438,.504,.684,.912],
-    [.144,.282,.372,.456,.540,.624,.846,1.128],
-    [.168,.336,.438,.540,.642,.744,1.008,1.344],
-    [.198,.390,.510,.624,.744,.858,1.170,1.560]
-  ]
-};
+  const buttonArea = document.createElement("div");
 
-const $ = id => document.getElementById(id);
-const form = $("form");
+  buttonArea.style.cssText =
+    "display:grid;" +
+    "grid-template-columns:1fr 1fr;" +
+    "gap:10px;" +
+    "margin-top:12px;";
 
-const numericFields = [
-  "buy",
-  "sell",
-  "qty",
-  "targetRate",
-  "margin",
-  "sellDays",
-  "buyDays",
-  "negoDay",
-  "discount",
-  "interest",
-  "burdenInterest",
-  "opening",
-  "other",
-  "loss",
-  "underwriter"
-];
+  const pngButton = document.createElement("button");
+  pngButton.id = "saveResultPNG";
+  pngButton.type = "button";
+  pngButton.textContent = "PNG 이미지 저장";
 
-const fmt = value => {
-  const normalized = Math.abs(value) < 0.00000001 ? 0 : value;
-  return normalized.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-};
+  const pdfButton = document.createElement("button");
+  pdfButton.id = "saveResultPDF";
+  pdfButton.type = "button";
+  pdfButton.textContent = "PDF 파일 저장";
 
-const clean = value => {
-  if (Math.abs(value) < 0.00000001) return "0";
-  return String(Number(value.toFixed(10)));
-};
+  buttonArea.append(pngButton, pdfButton);
+  csvButton.after(buttonArea);
 
-let latest = null;
+  const description = document.createElement("p");
+  description.className = "help";
+  description.textContent =
+    "현재 계산 결과를 거래 조건·비용 상세와 함께 저장합니다. " +
+    "PNG는 이미지 파일, PDF는 한 페이지 보고서로 저장됩니다.";
 
-function readValues() {
-  const v = {};
+  buttonArea.after(description);
 
-  numericFields.forEach(id => {
-    const raw = $(id).value;
-    v[id] = raw === "" ? NaN : Number(raw);
+  let busy = false;
+
+  function syncButtons() {
+    const disabled = busy || csvButton.disabled;
+
+    pngButton.disabled = disabled;
+    pdfButton.disabled = disabled;
+  }
+
+  const observer = new MutationObserver(syncButtons);
+
+  observer.observe(csvButton, {
+    attributes: true,
+    attributeFilter: ["disabled"]
   });
 
-  [
-    "trade",
-    "country",
-    "method",
-    "purchaseMethod",
-    "buyerGrade"
-  ].forEach(id => {
-    v[id] = $(id).value;
-  });
+  syncButtons();
 
-  ["nego", "risk", "small"].forEach(id => {
-    v[id] = $(id).checked;
-  });
+  function numberText(value, digits = 2) {
+    const normalized = Math.abs(value) < 0.00000001 ? 0 : value;
 
-  v.countryRecord = countries.find(
-    country => country.name === v.country
-  );
+    return normalized.toLocaleString("en-US", {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
+    });
+  }
 
-  return v;
-}
+  function rateText(value) {
+    return value === null || !Number.isFinite(value)
+      ? "산정 불가"
+      : numberText(value) + "%";
+  }
 
-/*
-  모든 금액은 USD/톤입니다.
-  totalCost만 전체 거래 금액 USD입니다.
-*/
-function calculate(v, saleOverride) {
-  const sell = saleOverride === undefined
-    ? v.sell
-    : saleOverride;
+  function dateText(date) {
+    const pad = value => String(value).padStart(2, "0");
 
-  if (!v.countryRecord) {
-    throw new Error(
-      "국가 목록에서 정확한 판매 국가명을 선택해 주세요."
+    return (
+      date.getFullYear() + "-" +
+      pad(date.getMonth() + 1) + "-" +
+      pad(date.getDate()) + " " +
+      pad(date.getHours()) + ":" +
+      pad(date.getMinutes())
     );
   }
 
-  const activeNumbers = [
-    v.buy,
-    sell,
-    v.qty,
-    v.sellDays,
-    v.buyDays,
-    v.other,
-    v.loss,
-    v.underwriter,
-    v.interest,
-    v.burdenInterest
-  ];
+  function fileName(extension) {
+    const date = new Date();
+    const pad = value => String(value).padStart(2, "0");
 
-  if (v.nego) {
-    activeNumbers.push(v.negoDay, v.discount);
-  }
-
-  if (v.purchaseMethod === "LC") {
-    activeNumbers.push(v.opening);
-  }
-
-  if (activeNumbers.some(value => !Number.isFinite(value))) {
-    throw new Error(
-      "필수 숫자 항목을 모두 입력해 주세요."
+    return (
+      "financing-result-" +
+      date.getFullYear() +
+      pad(date.getMonth() + 1) +
+      pad(date.getDate()) + "-" +
+      pad(date.getHours()) +
+      pad(date.getMinutes()) +
+      pad(date.getSeconds()) +
+      "." + extension
     );
   }
 
-  if (sell <= 0 || v.buy < 0 || v.qty <= 0) {
-    throw new Error(
-      "판매단가와 수량은 0보다 커야 하며 구매단가는 음수일 수 없습니다."
-    );
+  function getSnapshot() {
+    if (typeof latest === "undefined" || !latest || csvButton.disabled) {
+      throw new Error(
+        "먼저 유효한 거래 조건을 입력해 계산 결과를 확인해 주세요."
+      );
+    }
+
+    // 저장 도중 입력이 변경되어도 선택한 시점의 결과를 유지합니다.
+    return JSON.parse(JSON.stringify(latest));
   }
 
-  if (
-    [
-      v.buyDays,
-      v.other,
-      v.interest,
-      v.burdenInterest
-    ].some(value => value < 0) ||
-    v.loss < -100 ||
-    v.underwriter < 0 ||
-    (
-      v.nego &&
-      (v.discount < 0 || v.negoDay < 0)
-    ) ||
-    (
-      v.purchaseMethod === "LC" &&
-      v.opening < 0
-    )
-  ) {
-    throw new Error(
-      "기간·요율·비용의 입력 범위를 확인해 주세요."
-    );
+  function downloadFile(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = name;
+
+    document.body.append(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
-
-  if (v.nego && v.negoDay > v.sellDays) {
-    throw new Error(
-      "네고대금 수령일은 판매 만기일 이내여야 합니다."
-    );
-  }
-
-  const row = periods.indexOf(v.sellDays);
-
-  const col = v.method === "LC"
-    ? v.countryRecord.grade - 1
-    : "ABCDEFGR".indexOf(v.buyerGrade);
-
-  if (
-    row < 0 ||
-    col < 0 ||
-    col > 7 ||
-    (v.method === "LC" && col === 7)
-  ) {
-    throw new Error(
-      "첨부 보험요율표에서 확인할 수 없는 조건입니다."
-    );
-  }
-
-  // 수출보험료
-  const baseRate = tables[v.method][row][col];
-
-  const factors = [
-    1 + v.loss / 100,
-    1 + v.underwriter / 100,
-    v.risk ? 1.25 : 1,
-    v.small && v.method === "LC" ? 1.25 : 1,
-    v.trade === "triangle" ? 1.4 : 1
-  ];
-
-  const insuranceRate = factors.reduce(
-    (rate, factor) => rate * factor,
-    baseRate
-  );
-
-  const insurance = sell * insuranceRate / 100;
-
-  // 환가료: 365일 기준
-  const discountDays = v.nego
-    ? v.sellDays - v.negoDay
-    : 0;
-
-  const discount = v.nego
-    ? sell * (v.discount / 100) * discountDays / 365
-    : 0;
-
-  // 판매대금 실제 수령일
-  const receiptDay = v.nego
-    ? v.negoDay
-    : v.sellDays;
 
   /*
-    gap 양수: 판매대금을 먼저 받으므로 기여이자
-    gap 음수: 구매대금을 먼저 지급하므로 부담이자
+    화면 캡처 대신 저장용 보고서를 그립니다.
+    외부 이미지나 폰트를 불러오지 않으므로 별도 서버가 필요 없습니다.
   */
-  const gap = v.buyDays - receiptDay;
+  async function createReportCanvas(snapshot) {
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
 
-  const interestBase = gap >= 0
-    ? (v.nego ? sell - discount : sell)
-    : v.buy;
+    const { v, result: r } = snapshot;
+    const width = 1200;
 
-  const appliedInterestRate = gap >= 0
-    ? v.interest
-    : v.burdenInterest;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = 3600;
 
-  if (gap >= 0 && interestBase < 0) {
-    throw new Error(
-      "할인 후 실수령액이 음수입니다. 환가료율과 기간을 확인해 주세요."
-    );
-  }
+    const ctx = canvas.getContext("2d");
 
-  // 기여·부담이자: 360일 기준
-  const signedInterest =
-    interestBase *
-    (appliedInterestRate / 100) *
-    gap / 360;
+    if (!ctx) {
+      throw new Error("이 브라우저에서 이미지 생성 기능을 사용할 수 없습니다.");
+    }
 
-  /*
-    LC 개설수수료:
-    구매단가 × 연 수수료율 × max(30, 구매일수) / 365
-    A/S는 구매일수 0으로 입력합니다.
-  */
-  const openingDays = v.purchaseMethod === "LC"
-    ? Math.max(30, v.buyDays)
-    : 0;
+    const fontFamily =
+      '"Malgun Gothic","Apple SD Gothic Neo",Arial,sans-serif';
 
-  const opening = v.purchaseMethod === "LC"
-    ? v.buy * (v.opening / 100) * openingDays / 365
-    : 0;
+    const left = 64;
+    const right = width - left;
+    const contentWidth = right - left;
 
-  // 실제 비용에 마진을 더하지 않습니다.
-  const cost =
-    insurance +
-    discount +
-    opening +
-    v.other -
-    signedInterest;
+    let y = 64;
 
-  // 실제 비용 차감 후 우리 마진
-  const netMargin = sell - v.buy - cost;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const costRate = v.buy > 0
-    ? cost / v.buy * 100
-    : null;
+    function text(value, x, top, options = {}) {
+      ctx.font =
+        (options.bold ? "700 " : "400 ") +
+        (options.size || 25) + "px " + fontFamily;
 
-  return {
-    sell,
-    baseRate,
-    factors,
-    insuranceRate,
-    insurance,
-    discountDays,
-    discount,
-    receiptDay,
-    gap,
-    interestBase,
-    appliedInterestRate,
-    signedInterest,
-    openingDays,
-    opening,
-    cost,
-    netMargin,
-    costRate,
-    totalCost: cost * v.qty
-  };
-}
+      ctx.fillStyle = options.color || "#244438";
+      ctx.textAlign = options.align || "left";
+      ctx.textBaseline = "top";
 
-/*
-  우리 마진을 입력하면 판매단가에 연동되는 금융비용을
-  포함하여 판매단가를 역산합니다.
-*/
-function saleForMargin(v, desiredMargin) {
-  if (!Number.isFinite(desiredMargin)) {
-    throw new Error("우리 마진을 입력해 주세요.");
-  }
+      ctx.fillText(String(value), x, top);
+    }
 
-  const anchor = Math.max(v.buy, 1);
-  const costA = calculate(v, anchor).cost;
-  const costB = calculate(v, anchor + 1).cost;
+    function rule(top, color = "#dfe7dd") {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(right, top);
+      ctx.stroke();
+    }
 
-  const slope = costB - costA;
-  const denominator = 1 - slope;
+    function wrappedText(value, x, top, maxWidth, options = {}) {
+      const size = options.size || 21;
+      const lineHeight = options.lineHeight || size * 1.65;
 
-  if (Math.abs(denominator) < 0.0000000001) {
-    throw new Error(
-      "현재 비용 조건으로는 마진을 역산할 수 없습니다."
-    );
-  }
+      ctx.font =
+        (options.bold ? "700 " : "400 ") +
+        size + "px " + fontFamily;
 
-  const sale = (
-    v.buy +
-    desiredMargin +
-    costA -
-    slope * anchor
-  ) / denominator;
+      const paragraphs = String(value).split("\n");
+      let currentY = top;
 
-  if (!Number.isFinite(sale) || sale <= 0) {
-    throw new Error(
-      "입력한 마진으로 유효한 판매단가를 산정할 수 없습니다."
-    );
-  }
+      for (const paragraph of paragraphs) {
+        let line = "";
 
-  return sale;
-}
+        for (const character of paragraph) {
+          const candidate = line + character;
 
-function updateFieldStates(v) {
-  const country = v.countryRecord;
-  const lc = v.method === "LC";
+          if (ctx.measureText(candidate).width > maxWidth && line) {
+            text(line, x, currentY, options);
+            currentY += lineHeight;
+            line = character;
+          } else {
+            line = candidate;
+          }
+        }
 
-  $("countryInfo").textContent = country
-    ? (
-      `${country.name} · 국가 ${country.grade}등급` +
-      ` · 등급 적용일 ${country.date}` +
-      (country.watch ? " · 심층감시국" : "")
-    )
-    : "국가 목록에서 정확한 국가명을 선택해 주세요.";
+        if (line) {
+          text(line, x, currentY, options);
+        }
 
-  $("lcGradeLabel").hidden = !lc;
-  $("buyerGradeLabel").hidden = lc;
+        currentY += lineHeight;
+      }
 
-  $("lcGrade").value = country
-    ? `${country.name} · ${country.grade}등급`
-    : "국가를 선택해 주세요.";
+      return currentY;
+    }
 
-  $("negoDay").disabled = !v.nego;
-  $("discount").disabled = !v.nego;
-  $("opening").disabled = v.purchaseMethod !== "LC";
-  $("small").disabled = !lc;
-}
+    function sectionTitle(title) {
+      y += 25;
+      text(title, left, y, {
+        size: 28,
+        bold: true
+      });
+      y += 49;
+    }
 
-function clearResults(message) {
-  latest = null;
-  $("error").textContent = message;
+    function detailRow(label, value, formula) {
+      text(label, left, y, { size: 24 });
+      text(value, right, y, {
+        size: 25,
+        bold: true,
+        align: "right"
+      });
 
-  [
-    "perTon",
-    "costRate",
-    "netMargin",
-    "finance",
-    "totalCost"
-  ].forEach(id => {
-    $(id).textContent = "—";
-  });
+      y += 36;
 
-  [
-    "marginFormula",
-    "rateFormula",
-    "totalFormula"
-  ].forEach(id => {
-    $(id).textContent = "";
-  });
-
-  $("breakdown").replaceChildren();
-  $("export").disabled = true;
-}
-
-function addCostRow(title, amount, formula, credit) {
-  const row = document.createElement("div");
-  row.className = "cost";
-
-  const line = document.createElement("div");
-  line.className = "line";
-
-  const name = document.createElement("span");
-  name.textContent = title;
-
-  const value = document.createElement("strong");
-  value.textContent = fmt(amount);
-
-  if (credit) {
-    value.className = "credit";
-  }
-
-  const explanation = document.createElement("small");
-  explanation.textContent = formula;
-
-  line.append(name, value);
-  row.append(line, explanation);
-
-  $("breakdown").append(row);
-}
-
-function render(v, result) {
-  $("error").textContent = "";
-
-  $("perTon").textContent = fmt(result.cost);
-
-  $("costRate").textContent = result.costRate === null
-    ? "산정 불가"
-    : fmt(result.costRate) + "%";
-
-  $("netMargin").textContent = fmt(result.netMargin);
-  $("finance").textContent = fmt(result.cost);
-
-  $("marginFormula").textContent =
-    `판매 ${fmt(result.sell)}` +
-    ` − 구매 ${fmt(v.buy)}` +
-    ` − 실제 비용 ${fmt(result.cost)}` +
-    ` = 우리 마진 ${fmt(result.netMargin)} USD/톤`;
-
-  $("rateFormula").textContent = result.costRate === null
-    ? "구매단가가 0이므로 비용 요율을 산정할 수 없습니다."
-    : (
-      `실제 비용 ${fmt(result.cost)}` +
-      ` ÷ 구매단가 ${fmt(v.buy)} × 100` +
-      ` = ${fmt(result.costRate)}%.` +
-      ` 당사 타겟 요율은 비용 요율과 별도입니다.`
-    );
-
-  $("breakdown").replaceChildren();
-
-  addCostRow(
-    "수출보험료",
-    result.insurance,
-    `판매단가 ${fmt(result.sell)} × (` +
-    `${result.baseRate.toFixed(3)}% × ` +
-    `${result.factors.map(clean).join(" × ")})` +
-    ` = ${fmt(result.insurance)} USD/톤` +
-    ` · 적용 보험요율 ${result.insuranceRate.toFixed(4)}%`
-  );
-
-  addCostRow(
-    "환가료",
-    result.discount,
-    v.nego
-      ? (
-        `${fmt(result.sell)}` +
-        ` × ${v.discount}%` +
-        ` × ${result.discountDays}일 ÷ 365` +
-        ` = ${fmt(result.discount)} USD/톤`
-      )
-      : "네고 / 할인 미적용"
-  );
-
-  if (result.gap >= 0) {
-    addCostRow(
-      "사내기여이자 (비용 차감)",
-      -result.signedInterest,
-      `${fmt(result.interestBase)}` +
-      ` × ${result.appliedInterestRate}%` +
-      ` × ${result.gap}일 ÷ 360` +
-      ` = ${fmt(result.signedInterest)} USD/톤`,
-      true
-    );
-  } else {
-    addCostRow(
-      "사내부담이자",
-      -result.signedInterest,
-      `구매단가 ${fmt(result.interestBase)}` +
-      ` × ${result.appliedInterestRate}%` +
-      ` × ${Math.abs(result.gap)}일 ÷ 360` +
-      ` = ${fmt(-result.signedInterest)} USD/톤`
-    );
-  }
-
-  addCostRow(
-    "구매 LC 개설수수료",
-    result.opening,
-    v.purchaseMethod === "LC"
-      ? (
-        `구매단가 ${fmt(v.buy)}` +
-        ` × 연 ${v.opening}%` +
-        ` × ${result.openingDays}일 ÷ 365` +
-        ` = ${fmt(result.opening)} USD/톤` +
-        ` · A/S~30일은 최소 30일 적용`
-      )
-      : "구매 LC 미사용"
-  );
-
-  addCostRow(
-    "기타 직접비",
-    v.other,
-    "사용자 입력 · USD/톤"
-  );
-
-  $("totalCost").textContent =
-    fmt(result.totalCost) + " USD";
-
-  $("totalFormula").textContent =
-    `실제 비용 ${fmt(result.cost)} USD/톤` +
-    ` × ${v.qty}톤` +
-    ` = ${fmt(result.totalCost)} USD.` +
-    ` 중간 반올림 없이 계산합니다.`;
-
-  $("export").disabled = false;
-}
-
-function update(changed) {
-  let v = readValues();
-
-  updateFieldStates(v);
-
-  try {
-    if (changed === "targetRate" || changed === "buy") {
-      if (
-        !Number.isFinite(v.buy) ||
-        !Number.isFinite(v.targetRate)
-      ) {
-        throw new Error(
-          "구매단가와 당사 타겟 요율을 입력해 주세요."
+      if (formula) {
+        y = wrappedText(
+          formula,
+          left,
+          y,
+          contentWidth,
+          {
+            size: 19,
+            lineHeight: 30,
+            color: "#7a8c74"
+          }
         );
       }
 
-      $("sell").value = clean(
-        v.buy * (1 + v.targetRate / 100)
-      );
-
-      v = readValues();
-    } else if (changed === "margin") {
-      const sale = saleForMargin(v, v.margin);
-      $("sell").value = clean(sale);
-      v = readValues();
+      y += 13;
+      rule(y);
+      y += 19;
     }
 
-    const result = calculate(v);
+    text("TRADE DESK", left, y, {
+      size: 20,
+      bold: true,
+      color: "#6d8b72"
+    });
 
-    $("margin").value = clean(result.netMargin);
+    text(dateText(new Date()), right, y, {
+      size: 19,
+      align: "right",
+      color: "#7a8c74"
+    });
 
-    $("targetRate").value = v.buy > 0
-      ? clean((result.sell - v.buy) / v.buy * 100)
-      : "";
+    y += 43;
 
-    latest = { v, result };
+    text("파이낸싱 계산 결과", left, y, {
+      size: 43,
+      bold: true
+    });
 
-    render(v, result);
-  } catch (error) {
-    clearResults(
-      error.message || "계산 조건을 확인해 주세요."
-    );
-  }
-}
+    y += 65;
 
-form.addEventListener("submit", event => {
-  event.preventDefault();
-});
+    text("거래 조건 및 수익성 보고서", left, y, {
+      size: 23,
+      color: "#7a8c74"
+    });
 
-form.addEventListener("input", event => {
-  const changed = event.target.id;
+    y += 46;
+    rule(y);
 
-  if (changed === "method") {
-    $("nego").checked = $("method").value === "LC";
-  }
+    sectionTitle("01. 거래 조건");
 
-  if (changed === "country") {
-    const country = countries.find(
-      item => item.name === $("country").value
-    );
+    const country = v.countryRecord || {};
 
-    $("risk").checked = Boolean(
-      country && country.watch
-    );
-  }
+    const purchaseMethod = v.purchaseMethod === "LC"
+      ? "L/C"
+      : v.purchaseMethod === "TT"
+        ? "T/T"
+        : "국내 외상 · 구매승인서";
 
-  update(changed);
-});
+    const tradeType = v.trade === "triangle"
+      ? "중계무역 · 삼국간"
+      : "직수출";
 
-$("reset").addEventListener("click", () => {
-  form.reset();
-  update();
-});
-
-function initializeCountryOptions() {
-  $("countries").replaceChildren();
-
-  countries.forEach(country => {
-    const option = document.createElement("option");
-    option.value = country.name;
-    $("countries").append(option);
-  });
-}
-
-function renderCountries() {
-  const query = $("countrySearch").value.trim();
-
-  $("countryRows").replaceChildren();
-
-  countries
-    .filter(country => country.name.includes(query))
-    .forEach(country => {
-      const tr = document.createElement("tr");
-
+    const conditionLines = [
       [
-        country.name,
-        country.grade,
-        country.date,
-        country.watch ? "심층감시국" : "—"
-      ].forEach(value => {
-        const td = document.createElement("td");
-        td.textContent = value;
-        tr.append(td);
+        "판매 국가",
+        v.country + " / 국가 " + country.grade + "등급"
+      ],
+      [
+        "거래 유형 / 수량",
+        tradeType + " / " + numberText(v.qty) + "톤"
+      ],
+      [
+        "판매 / 구매 조건",
+        v.method + " " + v.sellDays + "일 / " +
+        purchaseMethod + " " + v.buyDays + "일"
+      ],
+      [
+        "판매 / 구매단가",
+        numberText(r.sell) + " / " +
+        numberText(v.buy) + " USD/톤"
+      ],
+      [
+        "타겟 요율 / 실제 마진",
+        rateText(r.tradeGapRate) + " / " +
+        numberText(r.netMargin) + " USD/톤"
+      ],
+      [
+        "네고 / 보험등급",
+        (v.nego ? "네고 적용 · 수령일 +" + v.negoDay + "일" : "네고 미적용") +
+        " / " +
+        (v.method === "LC"
+          ? "국가 " + country.grade + "등급"
+          : "수입자 " + v.buyerGrade + "등급")
+      ]
+    ];
+
+    conditionLines.forEach(([label, value]) => {
+      text(label, left, y, {
+        size: 21,
+        color: "#7a8c74"
       });
 
-      $("countryRows").append(tr);
-    });
-}
+      y = wrappedText(
+        value,
+        left + 290,
+        y,
+        contentWidth - 290,
+        {
+          size: 23,
+          lineHeight: 35
+        }
+      );
 
-$("countrySearch").addEventListener(
-  "input",
-  renderCountries
-);
-
-function renderRateTables() {
-  $("rateTables").replaceChildren();
-
-  ["LC", "TT"].forEach(method => {
-    const heading = document.createElement("h3");
-
-    heading.textContent = method === "LC"
-      ? "L/C · 국가등급별 기본요율 (%)"
-      : "T/T · D/A, CAD, COD 수입자등급별 기본요율 (%)";
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "scroll";
-
-    const table = document.createElement("table");
-    const thead = document.createElement("thead");
-    const header = document.createElement("tr");
-
-    const grades = method === "LC"
-      ? [1,2,3,4,5,6,7,8]
-      : ["A","B","C","D","E","F","G","R"];
-
-    ["기간 / 일", ...grades].forEach(value => {
-      const th = document.createElement("th");
-      th.textContent = value;
-      header.append(th);
+      y += 13;
     });
 
-    thead.append(header);
-    table.append(thead);
+    y += 12;
 
-    const tbody = document.createElement("tbody");
+    const summaryTop = y;
+    const summaryHeight = 460;
 
-    tables[method].forEach((rates, index) => {
-      const tr = document.createElement("tr");
+    ctx.fillStyle = "#173e32";
+    ctx.fillRect(left, summaryTop, contentWidth, summaryHeight);
 
+    text("02. 거래 수익성 요약", left + 28, summaryTop + 25, {
+      size: 28,
+      bold: true,
+      color: "#ffffff"
+    });
+
+    const summaryRows = [
       [
-        periods[index],
-        ...rates.map(rate => rate.toFixed(3))
-      ].forEach(value => {
-        const td = document.createElement("td");
-        td.textContent = value;
-        tr.append(td);
+        "1. 판구매 갭",
+        numberText(r.tradeGap) + " USD/톤",
+        rateText(r.tradeGapRate)
+      ],
+      [
+        "2. 예상 톤당 비용",
+        numberText(r.cost) + " USD/톤",
+        rateText(r.costRate)
+      ],
+      [
+        "3. 예상 톤당 마진",
+        numberText(r.netMargin) + " USD/톤",
+        rateText(r.marginRate)
+      ],
+      [
+        "4. 총 비용",
+        numberText(r.totalCost) + " USD",
+        ""
+      ],
+      [
+        "5. 총 마진",
+        numberText(r.totalMargin) + " USD",
+        ""
+      ]
+    ];
+
+    let summaryY = summaryTop + 88;
+
+    summaryRows.forEach(([label, value, rate]) => {
+      text(label, left + 28, summaryY, {
+        size: 24,
+        color: "#d2e1cb"
       });
 
-      tbody.append(tr);
+      text(
+        value + (rate ? "  /  " + rate : ""),
+        right - 28,
+        summaryY,
+        {
+          size: 25,
+          bold: true,
+          color: "#ffffff",
+          align: "right"
+        }
+      );
+
+      summaryY += 64;
     });
 
-    table.append(tbody);
-    wrapper.append(table);
+    text(
+      "모든 요율은 구매단가 기준 · 총액은 중간 반올림 없이 산정",
+      left + 28,
+      summaryTop + summaryHeight - 42,
+      {
+        size: 19,
+        color: "#b6c8ad"
+      }
+    );
 
-    $("rateTables").append(heading, wrapper);
-  });
+    y = summaryTop + summaryHeight + 12;
 
-  const note = document.createElement("p");
-  note.className = "help";
+    sectionTitle("03. 금융비용 상세 · USD/톤");
 
-  note.textContent =
-    "2026년 1월 기준 보험요율입니다. " +
-    "LC 8등급의 0.000 표기는 무료 보험료로 적용하지 않습니다. " +
-    "보험요율은 기본요율 × 실별 할인·할증 계수 " +
-    "× Underwriter 계수 × 비상위험 계수 " +
-    "× 소규모 개설은행 계수(LC) × 중계무역 계수로 계산합니다.";
+    detailRow(
+      "수출보험료",
+      numberText(r.insurance),
+      "판매단가 " + numberText(r.sell) +
+      " × 적용 보험요율 " +
+      numberText(r.insuranceRate, 4) + "%"
+    );
 
-  $("rateTables").append(note);
-}
+    detailRow(
+      "환가료",
+      numberText(r.discount),
+      v.nego
+        ? numberText(r.sell) + " × 연 " +
+          v.discount + "% × " +
+          r.discountDays + "일 / 365"
+        : "네고 / 할인 미적용"
+    );
 
-$("export").addEventListener("click", () => {
-  if (!latest) return;
+    detailRow(
+      r.gapDays >= 0
+        ? "사내기여이자 (비용 차감)"
+        : "사내부담이자",
+      numberText(-r.signedInterest),
+      numberText(r.interestBase) +
+      " × 연 " + r.appliedInterestRate +
+      "% × " + Math.abs(r.gapDays) + "일 / 360"
+    );
 
-  const { v, result } = latest;
+    detailRow(
+      "구매 LC 개설수수료",
+      numberText(r.opening),
+      v.purchaseMethod === "LC"
+        ? numberText(v.buy) + " × 연 " +
+          v.opening + "% × " +
+          r.openingDays + "일 / 365 · 최소 30일"
+        : "구매 LC 미사용"
+    );
 
-  const targetRate = v.buy > 0
-    ? (result.sell - v.buy) / v.buy * 100
-    : "산정 불가";
+    detailRow(
+      "기타 직접비",
+      numberText(v.other),
+      "사용자 입력 · USD/톤"
+    );
 
-  const rows = [
-    ["항목", "값", "단위"],
-    ["판매 국가", v.country, ""],
-    ["국가등급", v.countryRecord.grade, ""],
-    [
-      "거래 유형",
-      v.trade === "triangle" ? "중계무역" : "직수출",
-      ""
-    ],
-    ["판매 결제", v.method, ""],
-    ["판매 Usance", v.sellDays, "일"],
-    ["구매 지급수단", v.purchaseMethod, ""],
-    ["구매 Usance", v.buyDays, "일"],
-    ["수량", v.qty, "톤"],
-    ["구매단가", v.buy, "USD/톤"],
-    ["판매단가", result.sell, "USD/톤"],
-    ["당사 타겟 요율", targetRate, "%"],
-    [
-      "우리 마진 (실제 비용 차감 후)",
-      result.netMargin,
-      "USD/톤"
-    ],
-    ["판매채권 네고", v.nego ? "적용" : "미적용", ""],
-    ["네고대금 수령일", v.nego ? v.negoDay : "", "일"],
-    ["환가료율", v.nego ? v.discount : "", "연 %"],
-    ["기여이자율", v.interest, "연 %"],
-    ["부담이자율", v.burdenInterest, "연 %"],
-    ["보험 기본요율", result.baseRate, "%"],
-    ["실별 할인 / 할증률", v.loss, "%"],
-    ["Underwriter 할증률", v.underwriter, "%"],
-    [
-      "비상위험 할증",
-      v.risk ? "적용" : "미적용",
-      ""
-    ],
-    [
-      "소규모 개설은행 할증",
-      v.small && v.method === "LC" ? "적용" : "미적용",
-      ""
-    ],
-    ["보험 적용요율", result.insuranceRate, "%"],
-    ["수출보험료", result.insurance, "USD/톤"],
-    ["환가료", result.discount, "USD/톤"],
-    [
-      "사내기여이자",
-      Math.max(result.signedInterest, 0),
-      "USD/톤"
-    ],
-    [
-      "사내부담이자",
-      Math.max(-result.signedInterest, 0),
-      "USD/톤"
-    ],
-    [
-      "LC 개설 연 수수료율",
-      v.purchaseMethod === "LC" ? v.opening : "",
-      "연 %"
-    ],
-    [
-      "LC 개설수수료 적용일수",
-      result.openingDays,
-      "일"
-    ],
-    ["구매 LC 개설수수료", result.opening, "USD/톤"],
-    ["기타 직접비", v.other, "USD/톤"],
-    ["실제 톤당 비용", result.cost, "USD/톤"],
-    [
-      "구매단가 대비 비용 요율",
-      result.costRate === null ? "산정 불가" : result.costRate,
-      "%"
-    ],
-    [
-      "보험요율 기준",
-      "2026년 1월 / 2026.01.15~2027.01.14 선적분",
-      ""
-    ],
-    [
-      "국가등급 기준",
-      "2026년 7월 / 2026.07.02 자료",
-      ""
-    ],
-    ["최종 총 비용", result.totalCost, "USD"]
-  ];
+    detailRow(
+      "실제 톤당 비용 합계",
+      numberText(r.cost),
+      "우리 마진 = 판구매 갭 " +
+      numberText(r.tradeGap) +
+      " − 실제 비용 " +
+      numberText(r.cost) +
+      " = " + numberText(r.netMargin) + " USD/톤"
+    );
 
-  const csv = "\uFEFF" + rows.map(row =>
-    row.map(value =>
-      '"' + String(value).replace(/"/g, '""') + '"'
-    ).join(",")
-  ).join("\r\n");
+    sectionTitle("04. 적용 기준 · Remark");
 
-  const blob = new Blob(
-    [csv],
-    { type: "text/csv;charset=utf-8" }
-  );
+    y = wrappedText(
+      "보험요율: 2026년 1월 기준 / 2026.01.15~2027.01.14 선적분\n" +
+      "국가등급: 2026년 7월 기준 / 2026.07.02 첨부자료\n" +
+      "기본 보험요율 " + numberText(r.baseRate, 3) + "%" +
+      " × 적용 계수 " + r.factors.map(value => String(value)).join(" × ") +
+      " = 적용요율 " + numberText(r.insuranceRate, 4) + "%\n" +
+      "환가료는 365일, 기여·부담이자는 360일 기준입니다.\n" +
+      "LC 개설수수료는 A/S~30일까지 최소 30일을 적용합니다.\n" +
+      "화면 표시 금액과 실제 총액은 반올림 때문에 소액 차이가 날 수 있습니다.\n" +
+      "예상 견적용 계산이며 보험 인수 가능 여부와 최종 요율은 별도 확인하세요.",
+      left,
+      y,
+      contentWidth,
+      {
+        size: 19,
+        lineHeight: 31,
+        color: "#7a8c74"
+      }
+    );
 
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+    y += 35;
 
-  a.href = url;
-  a.download = "financing-calculation.csv";
+    const output = document.createElement("canvas");
+    output.width = width;
+    output.height = Math.ceil(y);
 
-  document.body.append(a);
-  a.click();
-  a.remove();
+    const outputContext = output.getContext("2d");
 
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
+    outputContext.fillStyle = "#ffffff";
+    outputContext.fillRect(0, 0, output.width, output.height);
+    outputContext.drawImage(canvas, 0, 0);
 
-initializeCountryOptions();
-renderCountries();
-renderRateTables();
-update();
+    return output;
+  }
+
+  function canvasToPNG(canvas) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(blob => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("PNG 파일을 만들지 못했습니다."));
+        }
+      }, "image/png");
+    });
+  }
+
+  /*
+    저장용 보고서 이미지를 한 페이지 PDF에 넣습니다.
+    PDF는 이미지 기반이므로 PDF 안의 글자 검색은 지원하지 않습니다.
+  */
+  function canvasToPDF(canvas) {
+    const dataURL = canvas.toDataURL("image/jpeg", 0.96);
+    const binary = atob(dataURL.split(",")[1]);
+
+    const imageBytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      imageBytes[i] = binary.charCodeAt(i);
+    }
+
+    const encoder = new TextEncoder();
+    const encode = value => encoder.encode(value);
+
+    const pageWidth = 595.28;
+    const pageHeight = 841.89;
+    const margin = 24;
+
+    const scale = Math.min(
+      (pageWidth - margin * 2) / canvas.width,
+      (pageHeight - margin * 2) / canvas.height
+    );
+
+    const imageWidth = canvas.width * scale;
+    const imageHeight = canvas.height * scale;
+
+    const x = (pageWidth - imageWidth) / 2;
+    const y = pageHeight - margin - imageHeight;
+
+    const content = encode(
+      "q\n" +
+      imageWidth.toFixed(4) + " 0 0 " +
+      imageHeight.toFixed(4) + " " +
+      x.toFixed(4) + " " +
+      y.toFixed(4) + " cm\n" +
+      "/Im0 Do\n" +
+      "Q\n"
+    );
+
+    const parts = [];
+    const offsets = [0];
+    let length = 0;
+
+    function add(part) {
+      const bytes = typeof part === "string" ? encode(part) : part;
+      parts.push(bytes);
+      length += bytes.length;
+    }
+
+    function addObject(id, body) {
+      offsets[id] = length;
+      add(id + " 0 obj\n");
+      add(body);
+      add("\nendobj\n");
+    }
+
+    add("%PDF-1.4\n");
+
+    addObject(
+      1,
+      "<< /Type /Catalog /Pages 2 0 R >>"
+    );
+
+    addObject(
+      2,
+      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>"
+    );
+
+    addObject(
+      3,
+      "<< /Type /Page /Parent 2 0 R " +
+      "/MediaBox [0 0 " + pageWidth + " " + pageHeight + "] " +
+      "/Resources << /XObject << /Im0 4 0 R >> >> " +
+      "/Contents 5 0 R >>"
+    );
+
+    offsets[4] = length;
+
+    add(
+      "4 0 obj\n" +
+      "<< /Type /XObject /Subtype /Image " +
+      "/Width " + canvas.width + " " +
+      "/Height " + canvas.height + " " +
+      "/ColorSpace /DeviceRGB " +
+      "/BitsPerComponent 8 " +
+      "/Filter /DCTDecode " +
+      "/Length " + imageBytes.length + " >>\n" +
+      "stream\n"
+    );
+
+    add(imageBytes);
+    add("\nendstream\nendobj\n");
+
+    offsets[5] = length;
+
+    add(
+      "5 0 obj\n" +
+      "<< /Length " + content.length + " >>\n" +
+      "stream\n"
+    );
+
+    add(content);
+    add("endstream\nendobj\n");
+
+    const xrefOffset = length;
+
+    add("xref\n0 6\n");
+    add("0000000000 65535 f \n");
+
+    for (let id = 1; id <= 5; id++) {
+      add(
+        String(offsets[id]).padStart(10, "0") +
+        " 00000 n \n"
+      );
+    }
+
+    add(
+      "trailer\n" +
+      "<< /Size 6 /Root 1 0 R >>\n" +
+      "startxref\n" +
+      xrefOffset + "\n" +
+      "%%EOF\n"
+    );
+
+    return new Blob(parts, {
+      type: "application/pdf"
+    });
+  }
+
+  async function saveResult(type) {
+    if (busy) return;
+
+    try {
+      const snapshot = getSnapshot();
+
+      busy = true;
+      syncButtons();
+
+      pngButton.textContent = "파일 생성 중…";
+      pdfButton.textContent = "파일 생성 중…";
+
+      const canvas = await createReportCanvas(snapshot);
+
+      if (type === "png") {
+        const blob = await canvasToPNG(canvas);
+        downloadFile(blob, fileName("png"));
+      } else {
+        const blob = canvasToPDF(canvas);
+        downloadFile(blob, fileName("pdf"));
+      }
+    } catch (error) {
+      alert(
+        error.message ||
+        "파일을 저장하지 못했습니다. 입력값을 확인하고 다시 시도해 주세요."
+      );
+    } finally {
+      busy = false;
+
+      pngButton.textContent = "PNG 이미지 저장";
+      pdfButton.textContent = "PDF 파일 저장";
+
+      syncButtons();
+    }
+  }
+
+  pngButton.addEventListener("click", () => saveResult("png"));
+  pdfButton.addEventListener("click", () => saveResult("pdf"));
+})();
 </script>
-
-</body>
-</html>
